@@ -12,19 +12,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
+import com.example.myjetpackcomposeapp.data.db.entities.Item
 import com.example.myjetpackcomposeapp.viewmodel.UiState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ItemListScreen(
     uiState: UiState,
-    onItemClick: (Int) -> Unit,
+    onItemClick: (Item) -> Unit,
     onSearch: (String) -> Unit,
     onAddItemScreenRequested: () -> Unit
 ) {
-    val items = uiState.items
+    var items by remember { mutableStateOf(uiState.items) }
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    var sortAttribute by remember { mutableStateOf("") }
+    var isAscending by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Кнопка "Добавить"
@@ -35,17 +39,67 @@ fun ItemListScreen(
         }
 
         // Поиск
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                onSearch(it.text)
-            },
-            label = { Text("Поиск по названию") },
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-        )
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Поиск по названию") },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = { onSearch(searchQuery.text) },
+            ) {
+                Text("Искать")
+            }
+        }
+
+        // Заголовки таблицы с сортировкой
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = "Название",
+                modifier = Modifier
+                    .weight(1f)
+                    .combinedClickable(
+                        onClick = { },
+                        onLongClick = {
+                            sortAttribute = "name"
+                            items = if (isAscending) {
+                                items.sortedBy { it.shortName }
+                            } else {
+                                items.sortedByDescending { it.shortName }
+                            }
+                            isAscending = !isAscending
+                        }
+                    )
+            )
+            Text(
+                text = "Информация",
+                modifier = Modifier
+                    .weight(1f)
+                    .combinedClickable(
+                        onClick = { },
+                        onLongClick = {
+                            sortAttribute = "info"
+                            items = if (isAscending) {
+                                items.sortedBy { it.shortInfo }
+                            } else {
+                                items.sortedByDescending { it.shortInfo }
+                            }
+                            isAscending = !isAscending
+                        }
+                    )
+            )
+        }
 
         // Список элементов
         LazyColumn {
@@ -53,21 +107,13 @@ fun ItemListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onItemClick(item.itemId) }
+                        .clickable { onItemClick(item) }
                         .padding(8.dp)
                 ) {
                     Text(text = item.shortName, modifier = Modifier.weight(1f))
                     Text(text = item.shortInfo ?: "", modifier = Modifier.weight(1f))
-                    Text(
-                        text = "Сорт.",
-                        modifier = Modifier
-                            .combinedClickable(
-                                onClick = { onItemClick(item.itemId) },)
-                            .padding(horizontal = 8.dp)
-                    )
                 }
             }
         }
     }
 }
-

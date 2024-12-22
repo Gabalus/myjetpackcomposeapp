@@ -1,6 +1,7 @@
 package com.example.myjetpackcomposeapp.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,7 @@ fun DetailScreen(
     uiState: UiState,
     onSave: (Item) -> Unit,
     onDelete: (Int) -> Unit,
+    onCancelClick: () -> Unit,
 ) {
     val selectedItem = uiState.selectedItem
     if (selectedItem == null) {
@@ -105,6 +107,9 @@ fun DetailScreen(
             ) {
                 Text("Удалить")
             }
+        }
+        OutlinedButton(onClick = { onCancelClick() }) {
+            androidx.compose.material.Text("Отмена")
         }
 
         uiState.errorMessage?.let { msg ->

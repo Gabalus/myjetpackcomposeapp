@@ -34,12 +34,20 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         }
     }
 
+    fun updateItems(categoryId: Int){
+        viewModelScope.launch {
+            repository.getItemsByCategory(categoryId).collect { list ->
+                _uiState.value = _uiState.value.copy(items = list)
+            }
+        }
+
+        }
+
     fun addCategory(name: String) {
         viewModelScope.launch {
             try {
                 val newCategory = Category(name = name)
                 repository.insertCategory(newCategory)
-                // Опционально: можно как-то реагировать при успехе
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }
@@ -63,10 +71,8 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
                     categoryId = categoryId,
                     shortName = shortName,
                     shortInfo = shortInfo,
-                    // Остальные поля можно заполнить по умолчанию
                 )
                 repository.insertItem(newItem)
-                // Можно вывести какое-то уведомление или обновить UI
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }
@@ -114,6 +120,9 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.updateItem(updatedItem)
+                repository.getAllCategories().collect { cats ->
+                    _uiState.value = _uiState.value.copy(categories = cats)
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }
