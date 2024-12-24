@@ -20,11 +20,10 @@ import com.example.myjetpackcomposeapp.data.db.entities.Category
 @Composable
 fun AddItemScreen(
     currentCategory: Category?,
-    onAddClick: (categoryId: Int, shortName: String, shortInfo: String?) -> Unit,
+    onAddClick: (categoryId: Int, shortName: String,) -> Unit,
     onCancelClick: () -> Unit
 ) {
     val (shortName, setShortName) = remember { mutableStateOf("") }
-    val (shortInfo, setShortInfo) = remember { mutableStateOf("") }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
@@ -43,13 +42,6 @@ fun AddItemScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = shortInfo,
-            onValueChange = setShortInfo,
-            label = { Text("Короткая информация") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -58,7 +50,6 @@ fun AddItemScreen(
                     onAddClick(
                         currentCategory.categoryId,
                         shortName,
-                        shortInfo
                     )
                 }
             }) {

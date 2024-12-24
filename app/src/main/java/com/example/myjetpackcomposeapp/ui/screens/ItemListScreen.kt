@@ -1,7 +1,6 @@
 package com.example.myjetpackcomposeapp.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import com.example.myjetpackcomposeapp.data.db.entities.Item
 import com.example.myjetpackcomposeapp.viewmodel.UiState
@@ -25,37 +23,21 @@ fun ItemListScreen(
     onAddItemScreenRequested: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    var sortAttribute by remember { mutableStateOf("") }
-    var isAscending by remember { mutableStateOf(true) }
 
     val displayedItems by remember {
         derivedStateOf {
-            var filteredItems = uiState.items.filter {
+            uiState.items.filter {
                 it.shortName.contains(searchQuery.text, ignoreCase = true)
             }
-            if (sortAttribute == "name") {
-                filteredItems = if (isAscending) {
-                    filteredItems.sortedBy { it.shortName }
-                } else {
-                    filteredItems.sortedByDescending { it.shortName }
-                }
-            } else if (sortAttribute == "info") {
-                filteredItems = if (isAscending) {
-                    filteredItems.sortedBy { it.shortInfo }
-                } else {
-                    filteredItems.sortedByDescending { it.shortInfo }
-                }
-            }
-            filteredItems
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.padding(8.dp)) {
-            if(uiState.isUserAuthenticated)
-            Button(onClick = { onAddItemScreenRequested() }) {
-                Text("Добавить элемент")
-            }
+            if (uiState.isUserAuthenticated)
+                Button(onClick = { onAddItemScreenRequested() }) {
+                    Text("Добавить элемент")
+                }
         }
 
         Row(
@@ -70,50 +52,53 @@ fun ItemListScreen(
                 label = { Text("Поиск по названию") },
                 modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = "Название",
-                modifier = Modifier
-                    .weight(1f)
-                    .combinedClickable(
-                        onClick = { },
-                        onLongClick = {
-                            sortAttribute = "name"
-                            isAscending = !isAscending
-                        }
-                    )
-            )
-            Text(
-                text = "Информация",
-                modifier = Modifier
-                    .weight(1f)
-                    .combinedClickable(
-                        onClick = { },
-                        onLongClick = {
-                            sortAttribute = "info"
-                            isAscending = !isAscending
-                        }
-                    )
-            )
         }
 
         LazyColumn {
             items(displayedItems) { item ->
-                Row(
+                var isDoseFirst by remember { mutableStateOf(true) }
+
+                val sortedFields by remember {
+                    derivedStateOf {
+                        if (isDoseFirst) {
+                            listOf(
+                                "Доза" to (item.numberOrDose ?: "-"),
+                                "Цена" to (item.price?.toString() ?: "-")
+                            )
+                        } else {
+                            listOf(
+                                "Цена" to (item.price?.toString() ?: "-"),
+                                "Доза" to (item.numberOrDose ?: "-")
+                            )
+                        }
+                    }
+                }
+
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onItemClick(item) }
+                        .combinedClickable(
+                            onClick = { onItemClick(item) },
+                            onLongClick = { isDoseFirst = !isDoseFirst }
+                        )
                         .padding(8.dp)
                 ) {
-                    Text(text = item.shortName, modifier = Modifier.weight(1f))
-                    Text(text = item.shortInfo ?: "", modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Название: ${item.shortName}",
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+
+                    sortedFields.forEach { (label, value) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = label, modifier = Modifier.weight(1f))
+                            Text(text = value, modifier = Modifier.weight(1f))
+                        }
+                    }
                 }
             }
         }

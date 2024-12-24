@@ -31,7 +31,7 @@ fun AppScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Демо Приложение Jetpack Compose") }
+                title = { Text("Аптека") }
             )
         }
     ) { padding ->
@@ -95,8 +95,8 @@ fun AppScreen(
             composable("add_item_screen") {
                 AddItemScreen(
                     currentCategory = uiState.selectedCategory,
-                    onAddClick = { catId, name, info ->
-                        viewModel.addNewItem(catId, name, info)
+                    onAddClick = { catId, name ->
+                        viewModel.addNewItem(catId, name)
                         navController.popBackStack()
                     },
                     onCancelClick = {

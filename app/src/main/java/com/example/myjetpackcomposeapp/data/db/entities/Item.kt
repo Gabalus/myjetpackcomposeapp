@@ -9,7 +9,6 @@ data class Item(
     val categoryId: Int,
 
     val shortName: String,
-    val shortInfo: String? = null,
 
     val numberOrDose: String? = null,
     val volumeOrCapacity: String? = null,

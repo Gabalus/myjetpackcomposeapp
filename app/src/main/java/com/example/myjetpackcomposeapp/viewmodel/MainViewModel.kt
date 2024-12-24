@@ -55,14 +55,12 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     fun addNewItem(
         categoryId: Int,
         shortName: String,
-        shortInfo: String?
     ) {
         viewModelScope.launch {
             try {
                 val newItem = Item(
                     categoryId = categoryId,
                     shortName = shortName,
-                    shortInfo = shortInfo,
                 )
                 repository.insertItem(newItem)
                 _uiState.value = _uiState.value.copy(items = repository.getItemsByCategory(categoryId))

@@ -11,5 +11,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppScreen()
         }
+        title = "Аптечная лавка"
     }
 }
