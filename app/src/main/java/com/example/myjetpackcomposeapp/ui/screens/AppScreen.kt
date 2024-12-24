@@ -64,10 +64,6 @@ fun AppScreen(
                 route = "items_screen?categoryId={categoryId}",
                 arguments = listOf(navArgument("categoryId") { type = NavType.IntType })
             ) {
-/*                val currentRoute = navController
-                    .currentBackStackEntry
-                    ?.arguments
-                    ?.getInt("categoryId")*/
 
                 ItemListScreen(
                     uiState = uiState,
@@ -75,7 +71,6 @@ fun AppScreen(
                         viewModel.onItemSelected(item.itemId)
                         navController.navigate("detail_screen")
                     },
-                    onSearch = { query -> viewModel.search(query) },
                     onAddItemScreenRequested = {
                         navController.navigate("add_item_screen")
                     }
@@ -86,15 +81,11 @@ fun AppScreen(
                     uiState = uiState,
                     onSave = { updatedItem ->
                         viewModel.updateItemDetail(updatedItem)
-                        navController.popBackStack("items_screen?categoryId=${uiState.selectedCategory!!.categoryId}", true,
-                            saveState = true
-                        )
+                        navController.popBackStack()
                     },
                     onDelete = { deletedItem ->
                         viewModel.deleteItem(deletedItem)
-                        navController.popBackStack("items_screen?categoryId=${uiState.selectedCategory!!.categoryId}", true,
-                            saveState = true
-                        )
+                        navController.popBackStack()
                     },
                             onCancelClick = {
                         navController.popBackStack()
@@ -106,9 +97,7 @@ fun AppScreen(
                     currentCategory = uiState.selectedCategory,
                     onAddClick = { catId, name, info ->
                         viewModel.addNewItem(catId, name, info)
-                        navController.popBackStack("items_screen?categoryId=${uiState.selectedCategory!!.categoryId}", true,
-                            saveState = true
-                        )
+                        navController.popBackStack()
                     },
                     onCancelClick = {
                         navController.popBackStack()

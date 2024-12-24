@@ -54,7 +54,6 @@ fun AddItemScreen(
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = {
-                // Вызываем callback для добавления
                 if (currentCategory != null) {
                     onAddClick(
                         currentCategory.categoryId,

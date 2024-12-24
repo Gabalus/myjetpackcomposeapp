@@ -26,7 +26,6 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     init {
-        // Подгружаем категории
         viewModelScope.launch {
             repository.getAllCategories().collect { cats ->
                 _uiState.value = _uiState.value.copy(categories = cats)
@@ -34,14 +33,6 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         }
     }
 
-    fun updateItems(categoryId: Int){
-        viewModelScope.launch {
-            repository.getItemsByCategory(categoryId).collect { list ->
-                _uiState.value = _uiState.value.copy(items = list)
-            }
-        }
-
-        }
 
     fun addCategory(name: String) {
         viewModelScope.launch {
@@ -54,9 +45,10 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         }
     }
 
-    fun deleteItem(itemId: Int) {
+    fun deleteItem(item: Item) {
         viewModelScope.launch {
-            repository.deleteItem(itemId)
+            repository.deleteItem(item.itemId)
+            _uiState.value = _uiState.value.copy(items = repository.getItemsByCategory(item.categoryId))
         }
     }
 
@@ -73,6 +65,7 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
                     shortInfo = shortInfo,
                 )
                 repository.insertItem(newItem)
+                _uiState.value = _uiState.value.copy(items = repository.getItemsByCategory(categoryId))
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }
@@ -82,9 +75,7 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     fun onCategorySelected(category: Category) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(selectedCategory = category)
-            repository.getItemsByCategory(category.categoryId).collect { list ->
-                _uiState.value = _uiState.value.copy(items = list)
-            }
+            _uiState.value = _uiState.value.copy(items = repository.getItemsByCategory(category.categoryId))
         }
     }
 
@@ -98,16 +89,12 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     fun search(query: String) {
         val cat = _uiState.value.selectedCategory ?: return
         viewModelScope.launch {
-            repository.searchItems(cat.categoryId, query).collect { list ->
-                _uiState.value = _uiState.value.copy(items = list)
-            }
+            _uiState.value = _uiState.value.copy(items =repository.searchItems(cat.categoryId, query))
         }
     }
 
 
-    // Пример авторизации:
     fun authenticateUser(login: String, pass: String) {
-        // Упрощённо – допустим, всё время успех
         _uiState.value = _uiState.value.copy(isUserAuthenticated = true)
     }
 
@@ -115,14 +102,11 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         _uiState.value = _uiState.value.copy(isUserAuthenticated = false)
     }
 
-    // Сохранение/обновление данных
     fun updateItemDetail(updatedItem: Item) {
         viewModelScope.launch {
             try {
                 repository.updateItem(updatedItem)
-                repository.getAllCategories().collect { cats ->
-                    _uiState.value = _uiState.value.copy(categories = cats)
-                }
+                _uiState.value = _uiState.value.copy(items = repository.getItemsByCategory(updatedItem.categoryId))
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }

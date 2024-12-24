@@ -29,7 +29,7 @@ fun CategoryScreen(
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            var loginText by remember { mutableStateOf("") }
+/*            var loginText by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = loginText,
                 onValueChange = { loginText = it },
@@ -43,10 +43,10 @@ fun CategoryScreen(
                 onValueChange = { passText = it },
                 label = { Text("Пароль") },
                 modifier = Modifier.weight(1f)
-            )
+            )*/
 
             if (!uiState.isUserAuthenticated) {
-                Button(onClick = { onLogin(loginText, passText) }) {
+                Button(onClick = { onLogin("loginText", "passText") }) {
                     Text("Войти")
                 }
             } else {

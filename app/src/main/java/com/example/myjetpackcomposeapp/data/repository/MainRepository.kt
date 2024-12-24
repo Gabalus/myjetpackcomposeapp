@@ -10,7 +10,7 @@ class MainRepository(private val db: AppDatabase) {
     fun getAllCategories(): Flow<List<Category>> =
         db.categoryDao().getAllCategories()
 
-    fun getItemsByCategory(categoryId: Int): Flow<List<Item>> =
+    suspend fun getItemsByCategory(categoryId: Int): List<Item> =
         db.itemDao().getItemsByCategory(categoryId)
 
     suspend fun getItemById(id: Int): Item? =
@@ -31,7 +31,7 @@ class MainRepository(private val db: AppDatabase) {
         db.categoryDao().deleteItem(id)
     }
 
-    fun searchItems(categoryId: Int, query: String): Flow<List<Item>> =
+    suspend fun searchItems(categoryId: Int, query: String): List<Item> =
         db.itemDao().searchItems(categoryId, query)
 
 }

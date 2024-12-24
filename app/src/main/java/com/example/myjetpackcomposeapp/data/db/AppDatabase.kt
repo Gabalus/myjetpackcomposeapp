@@ -1,6 +1,7 @@
 package com.example.myjetpackcomposeapp.data.db
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,6 +9,7 @@ import com.example.myjetpackcomposeapp.data.db.dao.CategoryDao
 import com.example.myjetpackcomposeapp.data.db.dao.ItemDao
 import com.example.myjetpackcomposeapp.data.db.entities.Category
 import com.example.myjetpackcomposeapp.data.db.entities.Item
+import java.util.concurrent.Executors
 
 @Database(
     entities = [Category::class, Item::class],
@@ -28,8 +30,10 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "my_local_db"
-                ).build()
+                    "my_db"
+                )    .setQueryCallback({ sqlQuery, bindArgs ->
+                    Log.d("RoomQuery", "Query: $sqlQuery, Args: $bindArgs")
+                }, Executors.newSingleThreadExecutor()).build()
                 INSTANCE = instance
                 instance
             }

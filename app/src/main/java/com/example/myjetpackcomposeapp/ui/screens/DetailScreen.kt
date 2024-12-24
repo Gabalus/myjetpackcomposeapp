@@ -1,6 +1,7 @@
 package com.example.myjetpackcomposeapp.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -10,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.myjetpackcomposeapp.data.db.entities.Item
 import com.example.myjetpackcomposeapp.viewmodel.UiState
@@ -18,7 +21,7 @@ import com.example.myjetpackcomposeapp.viewmodel.UiState
 fun DetailScreen(
     uiState: UiState,
     onSave: (Item) -> Unit,
-    onDelete: (Int) -> Unit,
+    onDelete: (Item) -> Unit,
     onCancelClick: () -> Unit,
 ) {
     val selectedItem = uiState.selectedItem
@@ -43,9 +46,12 @@ fun DetailScreen(
 
         OutlinedTextField(
             value = numberOrDose,
-            onValueChange = { if (canEdit) numberOrDose = it },
+            onValueChange = { if (canEdit) numberOrDose = it.filter { char -> char.isDigit() } },
             label = { Text("Номер / Дозировка") },
             enabled = canEdit,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
@@ -53,6 +59,9 @@ fun DetailScreen(
             onValueChange = { if (canEdit) volumeOrCapacity = it },
             label = { Text("Объём / Ёмкость") },
             enabled = canEdit,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
@@ -60,9 +69,11 @@ fun DetailScreen(
             onValueChange = { if (canEdit) price = it },
             label = { Text("Цена") },
             enabled = canEdit,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
             modifier = Modifier.fillMaxWidth()
         )
-
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Требует рецепт (для лекарств): ")
@@ -78,6 +89,9 @@ fun DetailScreen(
             onValueChange = { if (canEdit) additionalInfo = it },
             label = { Text("Доп. информация") },
             enabled = canEdit,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -100,7 +114,7 @@ fun DetailScreen(
             }
             Button(
                 onClick = {
-                    val deletedItem = selectedItem.itemId
+                    val deletedItem = selectedItem
                     onDelete(deletedItem)
                 },
                 modifier = Modifier.padding(top = 16.dp)

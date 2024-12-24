@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.Flow
 interface ItemDao {
 
     @Query("SELECT * FROM item WHERE categoryId = :categoryId")
-    fun getItemsByCategory(categoryId: Int): Flow<List<Item>>
+    suspend fun getItemsByCategory(categoryId: Int): List<Item>
 
     @Query("SELECT * FROM item WHERE itemId = :id")
     suspend fun getItemById(id: Int): Item?
 
     @Query("SELECT * FROM item WHERE categoryId = :categoryId AND shortName LIKE '%' || :searchQuery || '%'")
-    fun searchItems(categoryId: Int, searchQuery: String): Flow<List<Item>>
+    suspend fun searchItems(categoryId: Int, searchQuery: String): List<Item>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItem(item: Item)

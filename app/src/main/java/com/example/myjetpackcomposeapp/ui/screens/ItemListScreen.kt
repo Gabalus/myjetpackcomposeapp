@@ -22,23 +22,42 @@ import com.example.myjetpackcomposeapp.viewmodel.UiState
 fun ItemListScreen(
     uiState: UiState,
     onItemClick: (Item) -> Unit,
-    onSearch: (String) -> Unit,
     onAddItemScreenRequested: () -> Unit
 ) {
-    var items by remember { mutableStateOf(uiState.items) }
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     var sortAttribute by remember { mutableStateOf("") }
     var isAscending by remember { mutableStateOf(true) }
 
+    val displayedItems by remember {
+        derivedStateOf {
+            var filteredItems = uiState.items.filter {
+                it.shortName.contains(searchQuery.text, ignoreCase = true)
+            }
+            if (sortAttribute == "name") {
+                filteredItems = if (isAscending) {
+                    filteredItems.sortedBy { it.shortName }
+                } else {
+                    filteredItems.sortedByDescending { it.shortName }
+                }
+            } else if (sortAttribute == "info") {
+                filteredItems = if (isAscending) {
+                    filteredItems.sortedBy { it.shortInfo }
+                } else {
+                    filteredItems.sortedByDescending { it.shortInfo }
+                }
+            }
+            filteredItems
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
-        // Кнопка "Добавить"
         Row(modifier = Modifier.padding(8.dp)) {
+            if(uiState.isUserAuthenticated)
             Button(onClick = { onAddItemScreenRequested() }) {
                 Text("Добавить элемент")
             }
         }
 
-        // Поиск
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,14 +71,8 @@ fun ItemListScreen(
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { onSearch(searchQuery.text) },
-            ) {
-                Text("Искать")
-            }
         }
 
-        // Заголовки таблицы с сортировкой
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -73,11 +86,6 @@ fun ItemListScreen(
                         onClick = { },
                         onLongClick = {
                             sortAttribute = "name"
-                            items = if (isAscending) {
-                                items.sortedBy { it.shortName }
-                            } else {
-                                items.sortedByDescending { it.shortName }
-                            }
                             isAscending = !isAscending
                         }
                     )
@@ -90,20 +98,14 @@ fun ItemListScreen(
                         onClick = { },
                         onLongClick = {
                             sortAttribute = "info"
-                            items = if (isAscending) {
-                                items.sortedBy { it.shortInfo }
-                            } else {
-                                items.sortedByDescending { it.shortInfo }
-                            }
                             isAscending = !isAscending
                         }
                     )
             )
         }
 
-        // Список элементов
         LazyColumn {
-            items(items) { item ->
+            items(displayedItems) { item ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
